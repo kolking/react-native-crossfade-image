@@ -29,20 +29,32 @@ const App = () => {
   }, [index]);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
-        <CrossfadeImage style={styles.image} source={images[index]} resizeMode="cover" />
-      </View>
-    </SafeAreaView>
+    <CrossfadeImage
+      style={styles.background}
+      source={images[index]}
+      resizeMode="cover"
+      blurRadius={50}
+      duration={1000}
+    >
+      <SafeAreaView style={styles.container}>
+        <View style={styles.content}>
+          <CrossfadeImage style={styles.image} source={images[index]} resizeMode="cover" />
+        </View>
+      </SafeAreaView>
+    </CrossfadeImage>
   );
 };
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+    backgroundColor: '#212124',
+  },
   container: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#212124',
+    backgroundColor: '#0009',
   },
   content: {
     margin: 30,
