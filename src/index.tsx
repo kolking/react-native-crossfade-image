@@ -9,7 +9,7 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import isEqual from 'fast-deep-equal';
+import isEqual from 'react-fast-compare';
 
 import { usePrevious } from './hooks';
 
