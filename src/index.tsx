@@ -23,6 +23,7 @@ export const CrossfadeImage: React.FC<CrossfadeImageProps> = ({
   source,
   duration = 500,
   easing = Easing.ease,
+  children,
   ...props
 }) => {
   const prevSource = usePrevious(source);
@@ -72,6 +73,7 @@ export const CrossfadeImage: React.FC<CrossfadeImageProps> = ({
           onLoad={handleLoad}
         />
       )}
+      {children}
     </View>
   );
 };
