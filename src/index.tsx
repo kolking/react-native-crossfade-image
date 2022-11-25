@@ -1,4 +1,4 @@
-import React, { useCallback, useLayoutEffect, useState } from 'react';
+import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import {
   Animated,
   Easing,
@@ -31,13 +31,21 @@ export const CrossfadeImage: React.FC<CrossfadeImageProps> = ({
   const [newSource, setNewSource] = useState<ImageSourcePropType>();
   const [opacity] = useState(() => new Animated.Value(0));
 
+  const ongoingAnimation = useRef(false);
+  const setNextSource = useRef(() => {});
+
   useLayoutEffect(() => {
     if (!isEqual(source, prevSource)) {
+      if (ongoingAnimation.current) {
+        setNextSource.current = () => setNewSource(source);
+        return;
+      }
       setNewSource(source);
     }
   }, [source, prevSource]);
 
   const handleLoad = useCallback(() => {
+    ongoingAnimation.current = true;
     Animated.timing(opacity, {
       toValue: 1,
       duration,
@@ -53,6 +61,9 @@ export const CrossfadeImage: React.FC<CrossfadeImageProps> = ({
   const handleUpdate = useCallback(() => {
     setNewSource(undefined);
     opacity.setValue(0);
+    ongoingAnimation.current = false;
+    setNextSource.current();
+    setNextSource.current = () => {};
   }, [opacity]);
 
   return (
