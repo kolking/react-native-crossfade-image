@@ -9,9 +9,9 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import isEqual from 'react-fast-compare';
 
 import { usePrevious } from './hooks';
+import { isEqual } from './helpers';
 
 export interface CrossfadeImageProps extends ImageProps {
   duration?: number;
