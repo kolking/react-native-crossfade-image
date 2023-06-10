@@ -1,5 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { ImageSourcePropType, SafeAreaView, StatusBar, StyleSheet, View } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import {
+  ImageSourcePropType,
+  SafeAreaView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { CrossfadeImage } from 'react-native-crossfade-image';
 
 StatusBar.setBarStyle('light-content');
@@ -12,20 +20,22 @@ const images: ImageSourcePropType[] = [
   require('./assets/two.jpg'),
 ];
 
+const getNextIndex = (index: number) => {
+  return index === images.length - 1 ? 0 : index + 1;
+};
+
 const App = () => {
   const [index, setIndex] = useState(0);
 
-  useEffect(() => {
-    let interval: any;
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     setIndex(getNextIndex(index));
+  //   }, 3000);
+  //   return () => clearInterval(interval);
+  // }, [index]);
 
-    if (!interval) {
-      interval = setInterval(() => {
-        const newIndex = index + 1 === images.length ? 0 : index + 1;
-        setIndex(newIndex);
-      }, 3000);
-    }
-
-    return () => clearInterval(interval);
+  const handleChange = useCallback(() => {
+    setIndex(getNextIndex(index));
   }, [index]);
 
   return (
@@ -39,6 +49,9 @@ const App = () => {
       <SafeAreaView style={styles.container}>
         <View style={styles.content}>
           <CrossfadeImage style={styles.image} source={images[index]} resizeMode="cover" />
+          <TouchableOpacity style={styles.button} onPress={handleChange}>
+            <Text style={styles.buttonText}>Change Image</Text>
+          </TouchableOpacity>
         </View>
       </SafeAreaView>
     </CrossfadeImage>
@@ -63,6 +76,17 @@ const styles = StyleSheet.create({
     width: '100%',
     aspectRatio: 1,
     borderRadius: 10,
+  },
+  button: {
+    padding: 15,
+    marginTop: 30,
+    borderRadius: 10,
+    alignItems: 'center',
+    backgroundColor: '#fff3',
+  },
+  buttonText: {
+    fontSize: 15,
+    color: '#fff9',
   },
 });
 

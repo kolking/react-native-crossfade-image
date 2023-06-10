@@ -1,4 +1,4 @@
-import React, { useCallback, useLayoutEffect, useState } from 'react';
+import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import {
   Animated,
   Easing,
@@ -9,9 +9,9 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import isEqual from 'react-fast-compare';
 
 import { usePrevious } from './hooks';
+import { isEqual } from './helpers';
 
 export interface CrossfadeImageProps extends ImageProps {
   duration?: number;
@@ -27,15 +27,32 @@ export const CrossfadeImage: React.FC<CrossfadeImageProps> = ({
   ...props
 }) => {
   const prevSource = usePrevious(source);
+  const nextSource = useRef<ImageSourcePropType>();
+  const opacity = useRef(new Animated.Value(0)).current;
   const [oldSource, setOldSource] = useState<ImageSourcePropType>(source);
   const [newSource, setNewSource] = useState<ImageSourcePropType>();
-  const [opacity] = useState(() => new Animated.Value(0));
 
   useLayoutEffect(() => {
-    if (!isEqual(source, prevSource)) {
-      setNewSource(source);
+    if (prevSource && !isEqual(source, prevSource)) {
+      if (!nextSource.current) {
+        setNewSource(source);
+      }
+
+      nextSource.current = source;
     }
   }, [source, prevSource]);
+
+  const handleUpdate = useCallback(() => {
+    // If the source has been changed during animation
+    // then update newSource to the saved value,
+    // otherwise reset newSource to undefined
+    setNewSource(nextSource.current);
+    opacity.setValue(0);
+
+    if (isEqual(oldSource, nextSource.current)) {
+      nextSource.current = undefined;
+    }
+  }, [opacity, oldSource]);
 
   const handleLoad = useCallback(() => {
     Animated.timing(opacity, {
@@ -44,16 +61,17 @@ export const CrossfadeImage: React.FC<CrossfadeImageProps> = ({
       easing,
       useNativeDriver: true,
     }).start(() => {
-      if (newSource) {
+      if (newSource && !isEqual(oldSource, newSource)) {
+        // Replace oldSource with newSource,
+        // this will trigger handleUpdate
         setOldSource(newSource);
+      } else {
+        // If oldSource and newSource are the same
+        // then explicitly call handleUpdate
+        handleUpdate();
       }
     });
-  }, [opacity, newSource, duration, easing]);
-
-  const handleUpdate = useCallback(() => {
-    setNewSource(undefined);
-    opacity.setValue(0);
-  }, [opacity]);
+  }, [opacity, oldSource, newSource, duration, easing, handleUpdate]);
 
   return (
     <View style={[styles.root, style]}>
