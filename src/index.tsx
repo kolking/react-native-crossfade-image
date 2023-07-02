@@ -16,16 +16,17 @@ import { isEqual } from './helpers';
 export interface CrossfadeImageProps extends ImageProps {
   duration?: number;
   easing?: EasingFunction;
+  children?: React.ReactNode;
 }
 
-export const CrossfadeImage: React.FC<CrossfadeImageProps> = ({
+export const CrossfadeImage = ({
   style,
   source,
   duration = 500,
   easing = Easing.ease,
   children,
   ...props
-}) => {
+}: CrossfadeImageProps) => {
   const prevSource = usePrevious(source);
   const nextSource = useRef<ImageSourcePropType>();
   const opacity = useRef(new Animated.Value(0)).current;
