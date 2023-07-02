@@ -89,6 +89,10 @@ Prop | Required | Default | Description
 
 https://user-images.githubusercontent.com/4656448/172882419-c4712b98-3711-4dfb-85d7-ba56fa307dd8.mp4
 
+## Feedback
+
+I appreciate your feedback, so please star the repository if you like it. This is the best motivation for me to maintain the package and add new features. If you have any feature requests, found a bug, or have ideas for improvement, feel free to [open an issue](https://github.com/kolking/react-native-crossfade-image/issues).
+
 ## License
 
-MIT
+Licensed under the MIT license.
