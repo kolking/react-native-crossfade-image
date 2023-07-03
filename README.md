@@ -6,13 +6,16 @@ React Native component for changing images with crossfade transition effect when
 
 ## Installation
 
+### yarn
 ```sh
 yarn add react-native-crossfade-image
-# or
+```
+### npm
+```sh
 npm install react-native-crossfade-image
 ```
 
-## Usage as an image
+## Use as an image
 
 Simply replace `Image` with `CrossfadeImage` in your component. Please note that you have to specify image dimensions using the style prop to avoid collapsing.
 
@@ -42,7 +45,7 @@ const styles = StyleSheet.create({
 export default MyComponent;
 ```
 
-## Usage as a background image
+## Use as a background image
 
 You can provide children like you would with `ImageBackground` component. The content will be shown on top of the image. Adding `blurRadius` will create a nice blurred background effect.
 
@@ -75,15 +78,15 @@ export default MyComponent;
 
 ## Props
 
-Prop | Required | Default | Description
+Prop | Type | Default | Description
 ---|---|---|---
-`source` | yes | | The image source (either a remote URL or a local file resource)
-`duration` | no | `500` | Duration of the fade transition in ms
-`easing` | no | `Easing.ease` | Easing function, see [available options](https://reactnative.dev/docs/easing)
-`style`| no | | Style object applied to the wrapping View
-`resizeMode` | no | 'cover' | Image resize mode, see [available options](https://reactnative.dev/docs/image#resizemode)
-`blurRadius` | no | | The blur radius of the blur filter applied to the image
-`children` | no | | Any children provided will be shown on top of the image similar to `ImageBackground` component
+`source` | ImageSourcePropType | | The image source (either a remote URL or a local file resource)
+`duration` | number | `500` | Duration of the fade transition in ms
+`easing` | EasingFunction | `Easing.ease` | Easing function, see [available options](https://reactnative.dev/docs/easing)
+`style`| ViewStyle | | Style object applied to the wrapping View
+`resizeMode` | ImageResizeMode | `cover` | Image resize mode, see [available options](https://reactnative.dev/docs/image#resizemode)
+`blurRadius` | number | | The blur radius of the blur filter applied to the image
+`children` | ReactNode | | Any children provided will be shown on top of the image similar to `ImageBackground` component
 
 ## Example app demo
 
