@@ -17,6 +17,7 @@ export interface CrossfadeImageProps extends ImageProps {
   duration?: number;
   easing?: EasingFunction;
   children?: React.ReactNode;
+  optimizeForOpaque?: boolean;
 }
 
 export const CrossfadeImage = ({
@@ -25,6 +26,7 @@ export const CrossfadeImage = ({
   duration = 500,
   easing = Easing.ease,
   children,
+  optimizeForOpaque = false,
   ...props
 }: CrossfadeImageProps) => {
   const prevSource = usePrevious(source);
@@ -32,6 +34,13 @@ export const CrossfadeImage = ({
   const opacity = useRef(new Animated.Value(0)).current;
   const [oldSource, setOldSource] = useState<ImageSourcePropType>(source);
   const [newSource, setNewSource] = useState<ImageSourcePropType>();
+
+  const inverseOpacity = optimizeForOpaque
+    ? opacity.interpolate({
+        inputRange: [0, 1],
+        outputRange: [1, 0],
+      })
+    : 1;
 
   useLayoutEffect(() => {
     if (prevSource && !isEqual(source, prevSource)) {
@@ -76,9 +85,9 @@ export const CrossfadeImage = ({
 
   return (
     <View style={[styles.root, style]}>
-      <Image
+      <Animated.Image
         {...props}
-        style={styles.image}
+        style={[styles.image, { opacity: inverseOpacity }]}
         source={oldSource}
         fadeDuration={0}
         onLoad={handleUpdate}
@@ -86,7 +95,7 @@ export const CrossfadeImage = ({
       {newSource && (
         <Animated.Image
           {...props}
-          style={[styles.image, { opacity }]}
+          style={[styles.image, { opacity: opacity }]}
           source={newSource}
           fadeDuration={0}
           onLoad={handleLoad}
