@@ -3,7 +3,6 @@ import {
   Animated,
   Easing,
   EasingFunction,
-  Image,
   ImageProps,
   ImageSourcePropType,
   StyleSheet,
@@ -31,16 +30,9 @@ export const CrossfadeImage = ({
 }: CrossfadeImageProps) => {
   const prevSource = usePrevious(source);
   const nextSource = useRef<ImageSourcePropType>();
-  const opacity = useRef(new Animated.Value(0)).current;
+  const animatedOpacity = useRef(new Animated.Value(0)).current;
   const [oldSource, setOldSource] = useState<ImageSourcePropType>(source);
   const [newSource, setNewSource] = useState<ImageSourcePropType>();
-
-  const inverseOpacity = reverseFade
-    ? opacity.interpolate({
-        inputRange: [0, 1],
-        outputRange: [1, 0],
-      })
-    : 1;
 
   useLayoutEffect(() => {
     if (prevSource && !isEqual(source, prevSource)) {
@@ -57,15 +49,15 @@ export const CrossfadeImage = ({
     // then update newSource to the saved value,
     // otherwise reset newSource to undefined
     setNewSource(nextSource.current);
-    opacity.setValue(0);
+    animatedOpacity.setValue(0);
 
     if (isEqual(oldSource, nextSource.current)) {
       nextSource.current = undefined;
     }
-  }, [opacity, oldSource]);
+  }, [animatedOpacity, oldSource]);
 
   const handleLoad = useCallback(() => {
-    Animated.timing(opacity, {
+    Animated.timing(animatedOpacity, {
       toValue: 1,
       duration,
       easing,
@@ -81,13 +73,20 @@ export const CrossfadeImage = ({
         handleUpdate();
       }
     });
-  }, [opacity, oldSource, newSource, duration, easing, handleUpdate]);
+  }, [animatedOpacity, oldSource, newSource, duration, easing, handleUpdate]);
+
+  const reverseOpacity = reverseFade
+    ? animatedOpacity.interpolate({
+        inputRange: [0, 1],
+        outputRange: [1, 0],
+      })
+    : 1;
 
   return (
     <View style={[styles.root, style]}>
       <Animated.Image
         {...props}
-        style={[styles.image, { opacity: inverseOpacity }]}
+        style={[styles.image, { opacity: reverseOpacity }]}
         source={oldSource}
         fadeDuration={0}
         onLoad={handleUpdate}
@@ -95,7 +94,7 @@ export const CrossfadeImage = ({
       {newSource && (
         <Animated.Image
           {...props}
-          style={[styles.image, { opacity: opacity }]}
+          style={[styles.image, { opacity: animatedOpacity }]}
           source={newSource}
           fadeDuration={0}
           onLoad={handleLoad}
