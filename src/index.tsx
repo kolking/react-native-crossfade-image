@@ -17,7 +17,7 @@ export interface CrossfadeImageProps extends ImageProps {
   duration?: number;
   easing?: EasingFunction;
   children?: React.ReactNode;
-  optimizeForOpaque?: boolean;
+  reverseFade?: boolean;
 }
 
 export const CrossfadeImage = ({
@@ -26,7 +26,7 @@ export const CrossfadeImage = ({
   duration = 500,
   easing = Easing.ease,
   children,
-  optimizeForOpaque = false,
+  reverseFade = false,
   ...props
 }: CrossfadeImageProps) => {
   const prevSource = usePrevious(source);
@@ -35,7 +35,7 @@ export const CrossfadeImage = ({
   const [oldSource, setOldSource] = useState<ImageSourcePropType>(source);
   const [newSource, setNewSource] = useState<ImageSourcePropType>();
 
-  const inverseOpacity = optimizeForOpaque
+  const inverseOpacity = reverseFade
     ? opacity.interpolate({
         inputRange: [0, 1],
         outputRange: [1, 0],

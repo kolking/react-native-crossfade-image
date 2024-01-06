@@ -81,16 +81,16 @@ export default MyComponent;
 
 ## Props
 
-| Prop                | Type                | Default       | Description                                                                                                                                         |
-| ------------------- | ------------------- | ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `source`            | ImageSourcePropType |               | The image source (either a remote URL or a local file resource)                                                                                     |
-| `duration`          | number              | `500`         | Duration of the fade transition in ms                                                                                                               |
-| `easing`            | EasingFunction      | `Easing.ease` | Easing function, see [available options](https://reactnative.dev/docs/easing)                                                                       |
-| `style`             | ViewStyle           |               | Style object applied to the wrapping View                                                                                                           |
-| `resizeMode`        | ImageResizeMode     | `cover`       | Image resize mode, see [available options](https://reactnative.dev/docs/image#resizemode)                                                           |
-| `optimizeForOpaque` | boolean             | `false`       | Fade the images simultaneously so the old picture disappears after the animation. At 50% of the transition time, both images will have 50% opacity. |
-| `blurRadius`        | number              |               | The blur radius of the blur filter applied to the image                                                                                             |
-| `children`          | ReactNode           |               | Any children provided will be shown on top of the image similar to `ImageBackground` component                                                      |
+| Prop          | Type                | Default       | Description                                                                                                                                         |
+| ------------- | ------------------- | ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `source`      | ImageSourcePropType |               | The image source (either a remote URL or a local file resource)                                                                                     |
+| `duration`    | number              | `500`         | Duration of the fade transition in ms                                                                                                               |
+| `easing`      | EasingFunction      | `Easing.ease` | Easing function, see [available options](https://reactnative.dev/docs/easing)                                                                       |
+| `style`       | ViewStyle           |               | Style object applied to the wrapping View                                                                                                           |
+| `resizeMode`  | ImageResizeMode     | `cover`       | Image resize mode, see [available options](https://reactnative.dev/docs/image#resizemode)                                                           |
+| `reverseFade` | boolean             | `false`       | Fade the images simultaneously so the old picture disappears after the animation. At 50% of the transition time, both images will have 50% opacity. |
+| `blurRadius`  | number              |               | The blur radius of the blur filter applied to the image                                                                                             |
+| `children`    | ReactNode           |               | Any children provided will be shown on top of the image similar to `ImageBackground` component                                                      |
 
 ## Example app demo
 
