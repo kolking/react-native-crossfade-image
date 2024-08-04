@@ -13,6 +13,7 @@ import { usePrevious } from './hooks';
 import { isEqual } from './helpers';
 
 export interface CrossfadeImageProps extends ImageProps {
+  source: ImageSourcePropType;
   duration?: number;
   easing?: EasingFunction;
   children?: React.ReactNode;
