@@ -1,6 +1,6 @@
 {
   "name": "react-native-crossfade-image",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "React Native component to update image source with crossfade transition effect",
   "author": "Nick Seryakov (https://github.com/kolking)",
   "license": "MIT",
