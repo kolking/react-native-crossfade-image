@@ -30,7 +30,7 @@ export const CrossfadeImage = ({
   ...props
 }: CrossfadeImageProps) => {
   const prevSource = usePrevious(source);
-  const nextSource = useRef<ImageSourcePropType>();
+  const nextSource = useRef<ImageSourcePropType>(undefined);
   const animatedOpacity = useRef(new Animated.Value(0)).current;
   const [oldSource, setOldSource] = useState<ImageSourcePropType>(source);
   const [newSource, setNewSource] = useState<ImageSourcePropType>();
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   image: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     width: '100%',
     height: '100%',
   },
