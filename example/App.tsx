@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import {
   ImageSourcePropType,
-  SafeAreaView,
   StatusBar,
   StyleSheet,
   Text,
@@ -46,14 +45,14 @@ const App = () => {
       blurRadius={50}
       duration={1000}
     >
-      <SafeAreaView style={styles.container}>
+      <View style={styles.container}>
         <View style={styles.content}>
           <CrossfadeImage style={styles.image} source={images[index]} resizeMode="cover" />
           <TouchableOpacity style={styles.button} onPress={handleChange}>
             <Text style={styles.buttonText}>Change Image</Text>
           </TouchableOpacity>
         </View>
-      </SafeAreaView>
+      </View>
     </CrossfadeImage>
   );
 };

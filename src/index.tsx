@@ -1,4 +1,4 @@
-import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
   Animated,
   Easing,
@@ -9,8 +9,17 @@ import {
   View,
 } from 'react-native';
 
-import { usePrevious } from './hooks';
 import { isEqual } from './helpers';
+
+interface ImageLayer {
+  id: number;
+  source: ImageSourcePropType;
+  opacity: Animated.Value;
+}
+
+function createLayer(id: number, source: ImageSourcePropType, opacity: number): ImageLayer {
+  return { id, source, opacity: new Animated.Value(opacity) };
+}
 
 export interface CrossfadeImageProps extends ImageProps {
   source: ImageSourcePropType;
@@ -29,78 +38,111 @@ export const CrossfadeImage = ({
   reverseFade = false,
   ...props
 }: CrossfadeImageProps) => {
-  const prevSource = usePrevious(source);
-  const nextSource = useRef<ImageSourcePropType>();
-  const animatedOpacity = useRef(new Animated.Value(0)).current;
-  const [oldSource, setOldSource] = useState<ImageSourcePropType>(source);
-  const [newSource, setNewSource] = useState<ImageSourcePropType>();
+  const nextLayerId = useRef(1);
+  const latestLayerId = useRef(0);
+  const activeLayerId = useRef(0);
+  const latestSource = useRef(source);
+  const animatingLayerId = useRef<number | undefined>(undefined);
+  const runningAnimation = useRef<ReturnType<typeof Animated.parallel> | undefined>(undefined);
+  const [layers, setLayers] = useState<ImageLayer[]>(() => [createLayer(0, source, 1)]);
+
+  // Stop stale transitions before a newer source takes over
+  const stopAnimation = useCallback(() => {
+    runningAnimation.current?.stop();
+    runningAnimation.current = undefined;
+    animatingLayerId.current = undefined;
+  }, []);
+
+  const fadeAnimation = useCallback(
+    (animatedValue: Animated.Value, toValue: number) =>
+      Animated.timing(animatedValue, {
+        toValue,
+        duration,
+        easing,
+        useNativeDriver: true,
+      }),
+    [duration, easing],
+  );
+
+  useEffect(() => stopAnimation, [stopAnimation]);
 
   useLayoutEffect(() => {
-    if (prevSource && !isEqual(source, prevSource)) {
-      if (!nextSource.current) {
-        setNewSource(source);
+    if (isEqual(source, latestSource.current)) {
+      return;
+    }
+
+    // Add a new image layer on top of the layers stack
+    const layer = createLayer(nextLayerId.current, source, 0);
+    nextLayerId.current += 1;
+    latestLayerId.current = layer.id;
+    latestSource.current = source;
+
+    stopAnimation();
+    setLayers((value) => [...value, layer]);
+  }, [source, stopAnimation]);
+
+  const handleLoad = useCallback(
+    (layer: ImageLayer) => {
+      if (
+        layer.id === activeLayerId.current ||
+        layer.id !== latestLayerId.current ||
+        layer.id === animatingLayerId.current
+      ) {
+        return;
       }
 
-      nextSource.current = source;
-    }
-  }, [source, prevSource]);
+      // Stop currently running animation
+      stopAnimation();
 
-  const handleUpdate = useCallback(() => {
-    // If the source has been changed during animation
-    // then update newSource to the saved value,
-    // otherwise reset newSource to undefined
-    setNewSource(nextSource.current);
-    animatedOpacity.setValue(0);
+      const animations = [fadeAnimation(layer.opacity, 1)];
 
-    if (isEqual(oldSource, nextSource.current)) {
-      nextSource.current = undefined;
-    }
-  }, [animatedOpacity, oldSource]);
-
-  const handleLoad = useCallback(() => {
-    Animated.timing(animatedOpacity, {
-      toValue: 1,
-      duration,
-      easing,
-      useNativeDriver: true,
-    }).start(() => {
-      if (newSource && !isEqual(oldSource, newSource)) {
-        // Replace oldSource with newSource,
-        // this will trigger handleUpdate
-        setOldSource(newSource);
-      } else {
-        // If oldSource and newSource are the same
-        // then explicitly call handleUpdate
-        handleUpdate();
+      if (reverseFade) {
+        layers.forEach(({ id, opacity }) => {
+          if (id !== layer.id) {
+            animations.push(fadeAnimation(opacity, 0));
+          }
+        });
       }
-    });
-  }, [animatedOpacity, oldSource, newSource, duration, easing, handleUpdate]);
 
-  const reverseOpacity = reverseFade
-    ? animatedOpacity.interpolate({
-        inputRange: [0, 1],
-        outputRange: [1, 0],
-      })
-    : 1;
+      const animation = Animated.parallel(animations);
+      runningAnimation.current = animation;
+      animatingLayerId.current = layer.id;
+
+      animation.start(({ finished }) => {
+        if (runningAnimation.current === animation) {
+          runningAnimation.current = undefined;
+        }
+
+        if (animatingLayerId.current === layer.id) {
+          animatingLayerId.current = undefined;
+        }
+
+        if (!finished || layer.id !== latestLayerId.current) {
+          return;
+        }
+
+        layer.opacity.setValue(1);
+        activeLayerId.current = layer.id;
+
+        // Keep only the last layer after the transition
+        setLayers([layer]);
+      });
+    },
+    [layers, reverseFade, stopAnimation, fadeAnimation],
+  );
 
   return (
     <View style={[styles.root, style]}>
-      <Animated.Image
-        {...props}
-        style={[styles.image, { opacity: reverseOpacity }]}
-        source={oldSource}
-        fadeDuration={0}
-        onLoad={handleUpdate}
-      />
-      {newSource && (
+      {layers.map((layer) => (
         <Animated.Image
           {...props}
-          style={[styles.image, { opacity: animatedOpacity }]}
-          source={newSource}
+          key={layer.id}
+          style={[styles.image, { opacity: layer.opacity }]}
+          source={layer.source}
           fadeDuration={0}
-          onLoad={handleLoad}
+          onLoad={() => handleLoad(layer)}
         />
-      )}
+      ))}
       {children}
     </View>
   );
@@ -111,7 +153,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   image: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     width: '100%',
     height: '100%',
   },
