@@ -21,7 +21,7 @@ function createLayer(id: number, source: ImageSourcePropType, opacity: number): 
   return { id, source, opacity: new Animated.Value(opacity) };
 }
 
-export interface CrossfadeImageProps extends ImageProps {
+export interface CrossfadeImageProps extends Omit<ImageProps, 'children'> {
   source: ImageSourcePropType;
   duration?: number;
   easing?: EasingFunction;

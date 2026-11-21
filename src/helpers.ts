@@ -5,5 +5,9 @@ export function isEqual(one: ImageSourcePropType, two?: ImageSourcePropType) {
     return false;
   }
 
-  return Image.resolveAssetSource(one).uri === Image.resolveAssetSource(two).uri;
+  const resolvedOne = Image.resolveAssetSource(one);
+  const resolvedTwo = Image.resolveAssetSource(two);
+  return (
+    resolvedOne !== undefined && resolvedTwo !== undefined && resolvedOne.uri === resolvedTwo.uri
+  );
 }
